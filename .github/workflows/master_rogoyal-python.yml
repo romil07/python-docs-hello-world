@@ -1,35 +1,34 @@
-name: Deploy Python Web App to Azure
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
+name: Build and deploy Python app to Azure Web App - rogoyal-python
 
 on:
-  [push]
+  push:
+    branches:
+      - master
 
-env:
-  AZURE_WEBAPP_NAME: rogoyal-python
-  AZURE_WEBAPP_PACKAGE_PATH: '.' # set this to the path to your web app project
-  PYTHON_VERSION: '3.8'
-  AZURE_WEBAPP_PUBLISH_PROFILE: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}     # set GH repo secret with the publish profile of the web app
- 
 jobs:
   build-and-deploy:
-    name: Build and Deploy
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+    - uses: actions/checkout@master
+
+    - name: Set up Python version
+      uses: actions/setup-python@v1
       with:
-        python-version: ${{ matrix.python-version }}
-    - name: Check Requirements file exists
-      id: check_files
-      uses: andstor/file-existence-action@v1
+        python-version: '3.8'
+
+    - name: Build using AppService-Build
+      uses: azure/appservice-build@v1
       with:
-        files: "requirements.txt"
-        
-    - name: Deploy web App using GH Action azure/webapps-deploy
+        platform: python
+        platform-version: '3.8'
+
+    - name: 'Deploy to Azure Web App'
       uses: azure/webapps-deploy@v2
       with:
-        app-name: ${{ env.AZURE_WEBAPP_NAME }}
-        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
-        
-  # For more samples to get started with GitHub Action workflows to deploy to Azure, refer to https://github.com/Azure/actions-workflow-samples
+        app-name: 'rogoyal-python'
+        slot-name: 'production'
+        publish-profile: ${{ secrets.AzureAppService_PublishProfile_f2e5c94d6b3b403ea90bc2e2e53e2c93 }}
